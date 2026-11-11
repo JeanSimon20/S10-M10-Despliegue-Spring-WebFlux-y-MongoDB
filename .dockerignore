@@ -1,0 +1,9 @@
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+k8s/
+README.md
+GUIA_DOCENTE_EN_VIVO.md
+

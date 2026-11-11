@@ -1,0 +1,41 @@
+# ==============================================================================
+# Configuración del Microservicio Reactivo Spring WebFlux + MongoDB en Kubernetes
+# ==============================================================================
+server:
+  port: ${APP_PORT:8080}
+  shutdown: graceful
+
+spring:
+  application:
+    name: webflux-mongo-k8s
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  data:
+    mongodb:
+      # Cadena de conexión reactiva armada dinámicamente con variables del ConfigMap y Secret de K8s
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME:admin}:${MONGO_INITDB_ROOT_PASSWORD:secret123}@${DB_HOST:localhost}:${DB_PORT:27017}/${DB_NAME:vallegrande_reactive_db}?authSource=admin
+
+# ==============================================================================
+# Configuración de Spring Boot Actuator para Liveness y Readiness Probes en K8s
+# ==============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+logging:
+  level:
+    pe.edu.vallegrande.webfluxk8s: INFO
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
+

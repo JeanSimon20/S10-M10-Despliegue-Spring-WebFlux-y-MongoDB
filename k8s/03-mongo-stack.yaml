@@ -1,0 +1,76 @@
+# ==============================================================================
+# S10 | M10: MANIFIESTO 03 - STACK DE BASE DE DATOS NOSQL (MONGODB)
+# ==============================================================================
+# Incluye:
+#   1. Deployment de MongoDB 7.0 con credenciales inyectadas desde db-secret.
+#   2. Service tipo ClusterIP (mongo-service) expuesto SOLO internamente en el
+#      clúster en el puerto 27017 (Principio de Mínimo Privilegio / Zero Trust).
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  namespace: practica-s10
+  labels:
+    app: mongo-db
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-db
+      tier: database
+  template:
+    metadata:
+      labels:
+        app: mongo-db
+        tier: database
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+              name: mongo-port
+          # Inyección automática de MONGO_INITDB_ROOT_USERNAME y MONGO_INITDB_ROOT_PASSWORD
+          envFrom:
+            - secretRef:
+                name: db-secret
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: mongo-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-storage
+          emptyDir: {}
+---
+# ==============================================================================
+# SERVICE INTERNO: ClusterIP (Aislamiento de Red para la Base de Datos)
+# ==============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+  namespace: practica-s10
+  labels:
+    app: mongo-db
+    tier: database
+spec:
+  # ClusterIP garantiza que MongoDB NO sea accesible desde fuera del clúster
+  type: ClusterIP
+  selector:
+    app: mongo-db
+    tier: database
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+      name: tcp-mongo
+

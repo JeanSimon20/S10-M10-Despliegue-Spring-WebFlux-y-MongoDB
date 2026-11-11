@@ -1,0 +1,25 @@
+# ==============================================================================
+# S10 | M10: MANIFIESTO 01 - CONFIGMAP DE CONFIGURACIÓN PÚBLICA
+# ==============================================================================
+# Propósito: Externalizar la configuración no sensible del microservicio
+# siguiendo el Factor III de The Twelve-Factor App.
+# ==============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-configmap
+  namespace: practica-s10
+  labels:
+    app: webflux-mongo-stack
+    component: configuration
+    tier: backend
+data:
+  # Nombre DNS interno del Service ClusterIP de MongoDB dentro del namespace practica-s10
+  DB_HOST: "mongo-service"
+  # Puerto estándar del motor MongoDB
+  DB_PORT: "27017"
+  # Nombre de la base de datos reactiva
+  DB_NAME: "vallegrande_reactive_db"
+  # Puerto en el que levantará el servidor reactivo Netty de Spring WebFlux
+  APP_PORT: "8080"
+
