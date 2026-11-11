@@ -15,9 +15,6 @@ import reactor.test.StepVerifier;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-/**
- * Pruebas unitarias reactivas con StepVerifier (Project Reactor Test).
- */
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
@@ -56,4 +53,3 @@ class ProductServiceTest {
                 .verifyComplete();
     }
 }
-

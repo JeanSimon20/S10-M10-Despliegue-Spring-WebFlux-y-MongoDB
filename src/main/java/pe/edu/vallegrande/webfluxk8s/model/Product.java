@@ -13,9 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-/**
- * Documento MongoDB gestionado de forma reactiva mediante Spring Data Reactive MongoDB.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -44,4 +41,3 @@ public class Product {
 
     private LocalDateTime createdAt;
 }
-

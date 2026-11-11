@@ -1,12 +1,3 @@
-# ==============================================================================
-# S10 | M10: MANIFIESTO 04 - STACK DEL BACKEND REACTIVO (SPRING WEBFLUX)
-# ==============================================================================
-# Incluye:
-#   1. Deployment del microservicio Spring WebFlux (2 réplicas para Alta Disponibilidad).
-#   2. Inyección masiva de variables de entorno con envFrom (ConfigMap + Secret).
-#   3. Sondas de salud (Liveness y Readiness Probes) vía Spring Boot Actuator.
-#   4. Service tipo NodePort (puerto externo 30080) para pruebas desde el navegador/Postman.
-# ==============================================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,7 +25,6 @@ spec:
           ports:
             - containerPort: 8080
               name: http-netty
-          # Inyección desacoplada de toda la configuración pública y credenciales
           envFrom:
             - configMapRef:
                 name: app-configmap
@@ -47,7 +37,6 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-          # Readiness Probe: Kubernetes solo envía tráfico cuando Netty y MongoDB están listos
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -56,7 +45,6 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
-          # Liveness Probe: Kubernetes reinicia el contenedor si la JVM entra en bloqueo o fallo crítico
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -66,9 +54,6 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
 ---
-# ==============================================================================
-# SERVICE EXTERNO: NodePort (Exposición del API Reactivo hacia el Host/Cliente)
-# ==============================================================================
 apiVersion: v1
 kind: Service
 metadata:
@@ -86,7 +71,5 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      # Puerto fijo (rango oficial K8s: 30000-32767) para demostración en vivo
       nodePort: 30080
       name: http-webflux
-

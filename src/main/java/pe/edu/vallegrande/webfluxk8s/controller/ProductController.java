@@ -17,10 +17,6 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Controlador REST Reactivo (Spring WebFlux).
- * Atiende peticiones HTTP sobre Netty utilizando hilos de Event Loop no bloqueantes.
- */
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
@@ -37,10 +33,6 @@ public class ProductController {
     @Value("${APP_PORT:8080}")
     private String appPort;
 
-    /**
-     * Endpoint de diagnóstico para demostrar en vivo la inyección del ConfigMap
-     * y el hilo Event Loop de Netty que procesa la solicitud sin bloqueo.
-     */
     @GetMapping("/info")
     public Mono<Map<String, Object>> getClusterAndRuntimeInfo() {
         return Mono.fromCallable(() -> {
@@ -58,9 +50,6 @@ public class ProductController {
         });
     }
 
-    /**
-     * Lista todos los productos almacenados en MongoDB de manera no bloqueante.
-     */
     @GetMapping
     public Flux<Product> getAllProducts(@RequestParam(required = false) String category) {
         if (category != null && !category.isBlank()) {
@@ -69,19 +58,12 @@ public class ProductController {
         return productService.findAll();
     }
 
-    /**
-     * Demostración de Server-Sent Events (SSE) con Project Reactor.
-     * Emite cada producto como un evento en tiempo real cada 1 segundo sin bloquear el hilo de Netty.
-     */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Product> streamProductsReactive() {
         return productService.findAll()
                 .delayElements(Duration.ofSeconds(1));
     }
 
-    /**
-     * Obtiene un producto por su identificador único de MongoDB.
-     */
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Product>> getProductById(@PathVariable String id) {
         return productService.findById(id)
@@ -89,18 +71,12 @@ public class ProductController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Crea un nuevo documento de producto en MongoDB de forma reactiva.
-     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Product> createProduct(@Valid @RequestBody Product product) {
         return productService.create(product);
     }
 
-    /**
-     * Actualiza un producto existente por su ID.
-     */
     @PutMapping("/{id}")
     public Mono<ResponseEntity<Product>> updateProduct(
             @PathVariable String id,
@@ -110,9 +86,6 @@ public class ProductController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Elimina un producto por su ID.
-     */
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable String id) {
         return productService.deleteById(id)
@@ -121,4 +94,3 @@ public class ProductController {
                         : ResponseEntity.notFound().<Void>build());
     }
 }
-
